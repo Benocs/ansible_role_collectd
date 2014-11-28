@@ -1,0 +1,12 @@
+---
+
+- name: install
+  apt: pkg=collectd state=latest
+
+- name: setup collectd.conf
+  template: src=collectd.conf dest=/etc/collectd/collectd.conf
+  notify: collectd restart
+
+- name: setup collectd types
+  template: src=types.db.j2 dest={{collectd_prefix}}/etc/types.db
+  notify: collectd restart

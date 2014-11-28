@@ -1,0 +1,7 @@
+---
+
+- include: collectd.yml
+  when: collectd_enabled
+
+- include: graphite.yml
+  when: collectd_graphite_enabled

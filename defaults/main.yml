@@ -1,0 +1,40 @@
+---
+
+collectd_enabled: yes               # Enable the role
+
+# General options
+collectd_interval: 10
+collectd_readthreads: 7
+collectd_hostname: "{{ inventory_hostname }}"
+collectd_fqdnlookup: false
+
+# Collectd plugins
+collectd_plugins: []                # Ex. [nginx, memcached]
+collectd_plugins_options: {}        # See below for examples.
+
+# Collectd default plugins
+collectd_default_plugins: [cpu, df, interface, load, memory, swap]
+collectd_default_plugins_options:
+  swap:
+  - ReportByDevice false
+  interface:
+  - Interface lo
+  - IgnoreSelected true
+
+# Additional types
+# format: { name: ..., value: ... }
+collectd_types: []
+
+# Collectd graphite options
+collectd_graphite: no
+collectd_graphite_options:    # Setup write_graphite (https://collectd.org/wiki/index.php/Plugin:Write_Graphite)
+  Host: "localhost"
+  Port: 2003
+#  Host: "{{inventory_hostname}}"
+#  Prefix: stats.
+#  # Postfix: .collectd
+#  Protocol: tcp
+#  AlwaysAppendDS: 'false'
+#  EscapeCharacter: _
+#  LogSendErrors: 'true'
+#  StoreRates: 'true'

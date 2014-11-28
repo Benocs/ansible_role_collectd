@@ -1,0 +1,53 @@
+---
+
+- name: install
+  apt: pkg=collectd,python-pip,python-cairo,python-django,python-django-tagging,libapache2-mod-wsgi,python-twisted,python-memcache,python-pysqlite2,python-simplejson state=latest
+
+- name: pip install
+  pip: name={{ item }}
+  with_items:
+    - whisper
+    - carbon
+    - graphite-web
+
+- name: setup apache vhost
+  template: src=graphite-vhost.conf dest=/etc/apache2/sites-available/graphite
+  notify: apache2 restart
+
+- name: setup collectd.conf
+  template: src=collectd.conf dest=/etc/collectd/collectd.conf
+  notify: collectd restart
+
+- name: setup collectd types
+  template: src=types.db.j2 dest={{collectd_prefix}}/etc/types.db
+  notify: collectd restart
+
+- name: setup graphite.wsgi
+  template: src=graphite.wsgi dest=/opt/graphite/conf/graphite.wsgi
+
+- name: setup carbon.conf
+  template: src=carbon.conf dest=/opt/graphite/conf/carbon.conf
+
+- name: setup storage-schemas.conf
+  template: src=storage-schemas.conf dest=/opt/graphite/conf/storage-schemas.conf
+
+- name: setup storage-aggregation.conf
+  template: src=storage-aggregation.conf dest=/opt/graphite/conf/storage-aggregation.conf
+
+# TODO: You just installed Django's auth system, which means you don't have any
+# TODO: superusers defined.
+# TODO: Would you like to create one now? (yes/no):
+
+#- name: graphite syncdb
+#  command: python manage.py syncdb chdir=/opt/graphite/webapp/graphite
+
+- name: graphite chown www-data
+  command: chown -R www-data:www-data /opt/graphite/storage/
+
+- name: default a2dissite
+  command: a2dissite 000-default
+  notify: apache2 restart
+
+- name: graphite a2ensite
+  command: a2ensite graphite
+  notify: apache2 restart
